@@ -5,7 +5,10 @@ const jwtValidator: RequestHandler = ( req: Request, res: Response, next) => {
 
     interface Itoken {
         uid: string,
-        name: string
+        username: string,
+        fullname: string,
+        role: string,
+        state: boolean
     }
 
     // x-token headers
@@ -18,13 +21,16 @@ const jwtValidator: RequestHandler = ( req: Request, res: Response, next) => {
     }
 
     try {
-        const {uid, name} = <Itoken>jwt.verify(
+        const {uid, username, fullname, role, state} = <Itoken>jwt.verify(
             token,
             process.env.SECRET_JWT_SEED!
         );
 
         req.uid = uid;
-        req.name = name;
+        req.username = username;
+        req.fullname = fullname;
+        req.role = role;
+        req.state = state;
         
         
     } catch (error) {

@@ -21,10 +21,10 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const from = Number(req.query.from) || 0;
     const limit = Number(req.query.limit) || 5;
     try {
-        const users = yield User_1.default.find({}, 'firstName lastName nickName email avatar role state')
+        const users = yield User_1.default.find({}, 'fullName firstName lastName nickName email avatar role state')
             .skip(from)
             .limit(limit);
-        const countUser = yield User_1.default.count();
+        const countUser = yield User_1.default.countDocuments();
         res.status(200).json({
             ok: true,
             users,
@@ -70,10 +70,12 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         user.password = bcrypt_1.default.hashSync(password, salt);
         yield user.save();
         // Generate JWT
-        const token = yield jwt_1.default(user.id, user.userName);
+        const token = yield jwt_1.default(user.id, user.userName, user.fullName, user.role, user.state);
         return res.status(201).json({
             ok: true,
-            user,
+            uid: user.id,
+            username: user.userName,
+            fullname: user.fullName,
             token
         });
     }

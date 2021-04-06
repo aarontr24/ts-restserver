@@ -17,6 +17,7 @@ const user_1 = __importDefault(require("../routes/user"));
 const auth_1 = __importDefault(require("../routes/auth"));
 const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const body_parser_1 = __importDefault(require("body-parser"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -52,6 +53,8 @@ class Server {
         this.app.use(cors_1.default());
         // Lectura del body
         this.app.use(express_1.default.json());
+        // BodyParser
+        this.app.use(body_parser_1.default.urlencoded({ extended: false }));
         // Carpeta pública
         this.app.use(express_1.default.static('public'));
     }

@@ -11,10 +11,10 @@ export const getUsers = async( req: Request, res: Response ) => {
     const limit: number = Number(req.query.limit) || 5;
 
     try {
-        const users = await User.find({}, 'firstName lastName nickName email avatar role state')
+        const users = await User.find({}, 'fullName firstName lastName nickName email avatar role state')
                                 .skip(from)
                                 .limit(limit);
-        const countUser = await User.count();
+        const countUser = await User.countDocuments();
 
         res.status(200).json({
             ok: true,
@@ -71,11 +71,13 @@ export const createUser = async( req: Request, res: Response ) => {
         await user.save();
 
         // Generate JWT
-        const token = await generateJWT(user.id, user.userName);
+        const token = await generateJWT(user.id, user.userName, user.fullName, user.role, user.state);
 
         return res.status(201).json({
             ok: true,
-            user,
+            uid: user.id,
+            username: user.userName,
+            fullname: user.fullName,
             token
         });
         

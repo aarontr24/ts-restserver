@@ -5,6 +5,9 @@ import _ from 'underscore';
 import User from '../models/User';
 import generateJWT from '../helpers/jwt'
 
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(process.env.CLIENT_ID);
+
 export const login = async(req: Request, res: Response ) => {
     const { email, password } = req.body;
 
@@ -28,12 +31,13 @@ export const login = async(req: Request, res: Response ) => {
         }
 
         // Generate JWT
-        const token = await generateJWT(user.id, user.userName);
+        const token = await generateJWT(user.id, user.userName, user.fullName, user.role, user.state);
 
         res.json({
             ok: true,
             uid: user.id,
-            name: user.userName,
+            username: user.userName,
+            fullname: user.fullName,
             token
         })
         
@@ -48,10 +52,90 @@ export const login = async(req: Request, res: Response ) => {
 }
 
 export const revalidateToken = async(req: Request, res: Response) => {
-    const {uid, name } = req;
-    const token = await generateJWT(uid, name);
+    const { uid, username, fullname, role, state } = req;
+    const token = await generateJWT( uid, username, fullname, role, state );
     res.json({
         ok: true,
         token
     })
+}
+
+// Config Google
+
+async function verify( token: string ) {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        // Or, if multiple clients access the backend:
+        //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    });
+    const payload = ticket.getPayload();
+
+    return {
+        firstName: payload.given_name,
+        LastName: payload.family_name,
+        email: payload.email,
+        avatar: payload.picture,
+        socialNetwork: 'GOOGLE'
+    }
+    
+}
+// verify().catch(console.error);
+
+export const loginGoogle = async (req: Request, res: Response) => {
+
+    const token = req.body.idtoken;
+    let googleUser;
+
+    try {
+        googleUser = await verify(token);
+    } catch (error) {
+        console.log(error);
+        return res.status(403).json({
+            ok: false,
+            msg: 'Ocurrio un error'
+        })
+        
+    }
+
+    try {
+        let user = await User.findOne({ email: googleUser.email });
+        if ( user ) {
+            if (user.socialNetwork === 'NONE') {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Este correo ya esta en uso'
+                })
+            } else {
+                // Generate JWT
+                const token = await generateJWT(user.id, user.userName, user.fullName, user.role, user.state);
+                return res.status(400).json({
+                    ok: true,
+                    uid: user.id,
+                    username: user.userName,
+                    fullname: user.fullName,
+                    token
+                })
+            }
+        } else {
+            const user = new User;
+
+            user.firstName = googleUser.firstName;
+            user.lastName = googleUser.LastName;
+            user.userName = `${googleUser.firstName}${Date.now().toString()}`
+            user.email = googleUser.email;
+            user.avatar = googleUser.avatar;
+            user.socialNetwork = googleUser.socialNetwork;
+            user.password = ':)';
+
+            user.save()
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Contacte con el administrador'
+        })
+    }
+  
 }

@@ -3,6 +3,7 @@ import { check } from 'express-validator'
 import { deletetUser, getUser, getUsers, createUser, updateUser } from '../controllers/user';
 import fieldValidator from '../middlewares/fieldValidator'
 import jwtValidator from '../middlewares/jwtValidator';
+import { adminValidator, userValidator } from '../middlewares/roleValidator';
 
 const router = Router();
 
@@ -33,12 +34,13 @@ router.put(
         check('dni', 'El DNI es requirido').isLength({min:8, max:8}),
         check('dateOfBirth', 'La fecha debe ser válida').isISO8601().toDate(),
         fieldValidator,
-        jwtValidator
+        jwtValidator,
+        userValidator
     ],
     updateUser
     );
-router.get('/', getUsers);
+router.get('/', [jwtValidator, adminValidator], getUsers);
 router.get('/:id', getUser);
-router.delete('/:id', deletetUser);
+router.delete('/:id', [ jwtValidator, adminValidator ], deletetUser);
 
 export default router;

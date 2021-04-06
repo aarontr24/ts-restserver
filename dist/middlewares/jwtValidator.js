@@ -14,9 +14,12 @@ const jwtValidator = (req, res, next) => {
         });
     }
     try {
-        const { uid, name } = jsonwebtoken_1.default.verify(token, process.env.SECRET_JWT_SEED);
+        const { uid, username, fullname, role, state } = jsonwebtoken_1.default.verify(token, process.env.SECRET_JWT_SEED);
         req.uid = uid;
-        req.name = name;
+        req.username = username;
+        req.fullname = fullname;
+        req.role = role;
+        req.state = state;
     }
     catch (error) {
         return res.status(401).json({

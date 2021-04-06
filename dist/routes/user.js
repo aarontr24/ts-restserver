@@ -8,6 +8,7 @@ const express_validator_1 = require("express-validator");
 const user_1 = require("../controllers/user");
 const fieldValidator_1 = __importDefault(require("../middlewares/fieldValidator"));
 const jwtValidator_1 = __importDefault(require("../middlewares/jwtValidator"));
+const roleValidator_1 = require("../middlewares/roleValidator");
 const router = express_1.Router();
 // Create User
 router.post('/new', [
@@ -29,10 +30,11 @@ router.put('/:id', [
     express_validator_1.check('dni', 'El DNI es requirido').isLength({ min: 8, max: 8 }),
     express_validator_1.check('dateOfBirth', 'La fecha debe ser válida').isISO8601().toDate(),
     fieldValidator_1.default,
-    jwtValidator_1.default
+    jwtValidator_1.default,
+    roleValidator_1.userValidator
 ], user_1.updateUser);
-router.get('/', user_1.getUsers);
+router.get('/', [jwtValidator_1.default, roleValidator_1.adminValidator], user_1.getUsers);
 router.get('/:id', user_1.getUser);
-router.delete('/:id', user_1.deletetUser);
+router.delete('/:id', [jwtValidator_1.default, roleValidator_1.adminValidator], user_1.deletetUser);
 exports.default = router;
 //# sourceMappingURL=user.js.map

@@ -21,11 +21,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const validRoles = {
-    values: ['ADMIN_ROLE', 'USER_ROLE'],
+    values: ['ADMIN_ROLE', 'USER_ROLE', 'LEADER_ROLE'],
     message: '{VALUE} no es un rol válido'
 };
 const validSocialNetwork = {
-    values: ['WEB', 'GOOGLE', 'FACEBOOK'],
+    values: ['NONE', 'GOOGLE', 'FACEBOOK'],
     message: '{VALUE} no es una red social válida'
 };
 ;
@@ -35,10 +35,10 @@ const UserSchema = new mongoose_1.Schema({
     userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    dni: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true },
+    dni: { type: String },
+    dateOfBirth: { type: Date },
     avatar: { type: String },
-    socialNetwork: { type: String, default: 'WEB', enum: validSocialNetwork },
+    socialNetwork: { type: String, default: 'NONE', enum: validSocialNetwork },
     // google: { type: Boolean, default: false },
     // facebook: { type: Boolean, default: false },
     role: { type: String, default: 'USER_ROLE', enum: validRoles },
@@ -48,6 +48,10 @@ const UserSchema = new mongoose_1.Schema({
 }, {
     // timestamps: { currentTime: () => Math.floor(Date.now() / 1000 )}
     timestamps: {}
+});
+// Virtuals
+UserSchema.virtual('fullName').get(function () {
+    return `${this.firstName} ${this.lastName}`;
 });
 UserSchema.methods.toJSON = function () {
     const user = this;

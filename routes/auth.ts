@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator'
-import { login, revalidateToken } from '../controllers/auth';
+import { login, loginGoogle, revalidateToken } from '../controllers/auth';
 import fieldValidator from '../middlewares/fieldValidator'
 import jwtValidator from '../middlewares/jwtValidator';
 
@@ -23,5 +23,7 @@ router.get(
     jwtValidator,
     revalidateToken
 )
+
+router.post('/google', loginGoogle)
 
 export default router;

@@ -3,6 +3,7 @@ import userRoutes from '../routes/user';
 import authRoutes from '../routes/auth'
 import cors from 'cors';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser'
 
 class Server {
 
@@ -45,6 +46,9 @@ class Server {
 
         // Lectura del body
         this.app.use( express.json() );
+
+        // BodyParser
+        this.app.use( bodyParser.urlencoded({ extended: false}));
 
         // Carpeta pública
         this.app.use( express.static('public') );

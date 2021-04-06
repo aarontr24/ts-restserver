@@ -17,5 +17,6 @@ router.post('/', [
 ], auth_1.login);
 // Renew token
 router.get('/renew', jwtValidator_1.default, auth_1.revalidateToken);
+router.post('/google', auth_1.loginGoogle);
 exports.default = router;
 //# sourceMappingURL=auth.js.map
