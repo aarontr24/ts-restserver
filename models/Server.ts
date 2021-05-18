@@ -2,9 +2,10 @@ import express, { Application } from 'express';
 import userRoutes from '../routes/user';
 import authRoutes from '../routes/auth';
 import uploadRoutes from '../routes/upload';
+import refugeRoutes from '../routes/refuge';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
+// import bodyParser from 'body-parser';
 import fileUpload from 'express-fileupload';
 
 class Server {
@@ -14,7 +15,8 @@ class Server {
     private apiPaths = {
         users: '/api/users',
         auth: '/api/auth',
-        upload: '/api/upload'
+        upload: '/api/upload',
+        refuge: '/api/refuge',
     }
 
     constructor() {
@@ -51,7 +53,8 @@ class Server {
         this.app.use( express.json() );
 
         // BodyParser
-        this.app.use( bodyParser.urlencoded({ extended: false}));
+        this.app.use( express.urlencoded({ extended: false}));
+        // this.app.use( bodyParser.urlencoded({ extended: false}));
 
         // Carpeta pública
         this.app.use( express.static('public') );
@@ -64,6 +67,7 @@ class Server {
         this.app.use( this.apiPaths.users, userRoutes);
         this.app.use( this.apiPaths.auth, authRoutes);
         this.app.use( this.apiPaths.upload, uploadRoutes);
+        this.app.use( this.apiPaths.refuge, refugeRoutes);
     }
 
     listen() {

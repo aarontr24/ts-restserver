@@ -30,6 +30,14 @@ export const login = async(req: Request, res: Response ) => {
             })
         }
 
+        // Check user disabled
+        if ( user.state === false ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Usuario inhabilitado!'
+            })
+        }
+
         // Generate JWT
         const token = await generateJWT(user.id, user.userName, user.fullName, user.role, user.state);
 
@@ -101,10 +109,18 @@ export const loginGoogle = async (req: Request, res: Response) => {
     try {
         let user = await User.findOne({ email: googleUser.email });
         if ( user ) {
+            // Check user disabled
+            if ( user.state === false ) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Usuario inhabilitado!'
+                })
+            }
+
             if (user.socialNetwork === 'NONE') {
                 return res.status(400).json({
                     ok: false,
-                    msg: 'Este correo ya esta en uso'
+                    msg: 'Cuenta creada por login normal'
                 })
             } else {
                 // Generate JWT
@@ -129,6 +145,14 @@ export const loginGoogle = async (req: Request, res: Response) => {
             user.password = ':)';
 
             user.save()
+            const token = await generateJWT(user.id, user.userName, user.fullName, user.role, user.state);
+            return res.status(400).json({
+                ok: true,
+                uid: user.id,
+                username: user.userName,
+                fullname: user.fullName,
+                token
+            })
         }
     } catch (error) {
         console.log(error);

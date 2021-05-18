@@ -21,7 +21,7 @@ const jwtValidator: RequestHandler = ( req: Request, res: Response, next) => {
     }
 
     try {
-        const {uid, username, fullname, role, state} = <Itoken>jwt.verify(
+        const { uid, username, fullname, role, state } = <Itoken>jwt.verify(
             token,
             process.env.SECRET_JWT_SEED!
         );

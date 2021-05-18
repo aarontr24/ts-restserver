@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { check } from 'express-validator'
-import { deletetUser, getUser, getUsers, createUser, updateUser } from '../controllers/user';
+import { deleteUser, getUser, getUsers, createUser, updateUser } from '../controllers/user';
 import fieldValidator from '../middlewares/fieldValidator'
 import jwtValidator from '../middlewares/jwtValidator';
-import { adminValidator, userValidator } from '../middlewares/roleValidator';
+import { adminValidator, myselfValidator } from '../middlewares/roleValidator';
 
 const router = Router();
 
@@ -35,12 +35,12 @@ router.put(
         check('dateOfBirth', 'La fecha debe ser válida').isISO8601().toDate(),
         fieldValidator,
         jwtValidator,
-        userValidator
+        myselfValidator
     ],
     updateUser
     );
 router.get('/', [jwtValidator, adminValidator], getUsers);
 router.get('/:id', getUser);
-router.delete('/:id', [ jwtValidator, adminValidator ], deletetUser);
+router.delete('/:id', [ jwtValidator, adminValidator ], deleteUser);
 
 export default router;
